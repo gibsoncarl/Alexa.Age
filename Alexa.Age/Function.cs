@@ -26,7 +26,11 @@ namespace Alexa.Age
         /// <returns></returns>
         public SkillResponse FunctionHandler(SkillRequest input, ILambdaContext context)
         {
-            SkillResponse response = new SkillResponse();
+            SkillResponse response = new SkillResponse
+            {
+                Response = new ResponseBody()
+            };
+
             response.Response.ShouldEndSession = true;
 
             IOutputSpeech innerResponse = null;
