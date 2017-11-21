@@ -7,6 +7,7 @@ using Amazon.Lambda.Core;
 using Alexa.NET.Request;
 using Alexa.NET.Response;
 using Alexa.NET.Request.Type;
+using System.Text;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
@@ -86,7 +87,7 @@ namespace Alexa.Age
         {
             FullAge age = new FullAge(new DateTime(2017, 4, 26, 13, 26, 00), DateTime.Now);
 
-            return age.ToString();
+            return "Elodie is " + age.ToString() + " old!";
         }
     }
 
@@ -150,9 +151,28 @@ namespace Alexa.Age
 
         public override string ToString()
         {
-            string fullAge = $"{WholeYears} years, {RemainderMonths} months, {RemainderWeeks} weeks, {RemainderDays} days, {RemainderHours} hours, {RemainderMinutes} minutes.";
+            List<string> ageParts = new List<string>();
 
-            return fullAge;
+            if (WholeYears > 0)
+                ageParts.Add($"{WholeYears} years");
+
+            if (RemainderMonths > 0)
+                ageParts.Add($"{RemainderMonths} months");
+
+            if (RemainderWeeks > 0)
+                ageParts.Add($"{RemainderWeeks} weeks");
+
+            if (RemainderDays > 0)
+                ageParts.Add($"{RemainderDays} days");
+
+            if (RemainderHours > 0)
+                ageParts.Add($"{RemainderHours} hours");
+
+            if (RemainderMinutes > 0)
+                ageParts.Add($"{RemainderMinutes} minutes");
+
+
+            return string.Join(", ", ageParts);
         }
 
         private int RemainderMonths => WholeMonths % 12;
