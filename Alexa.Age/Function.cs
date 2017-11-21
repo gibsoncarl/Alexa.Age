@@ -76,6 +76,9 @@ namespace Alexa.Age
                 }
             }
 
+            response.Response.OutputSpeech = innerResponse;
+            response.Version = "1.0";
+
             return response;
         }
 
