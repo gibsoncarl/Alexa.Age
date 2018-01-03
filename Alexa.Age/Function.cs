@@ -91,134 +91,123 @@ namespace Alexa.Age
         }
     }
 
-    public class FullAge
-    {
-        DateTime _birthDate;
-        DateTime _currentDate;
-        TimeSpan _ageSpan;
+// Define other methods and classes here
+public class FullAge
+{
+	DateTime _birthDate;
+	DateTime _currentDate;
+	TimeSpan _ageSpan;
+	public FullAge(DateTime birthDate, DateTime currentDate)
+	{
+		_birthDate = birthDate;
+		_currentDate = currentDate;
 
-        public FullAge(DateTime birthDate, DateTime currentDate)
-        {
-            _birthDate = birthDate;
-            _currentDate = currentDate;
+		_ageSpan = currentDate - birthDate;
+	}
 
-            _ageSpan = currentDate - birthDate;
-        }
+	public int WholeYears
+	{
+		get
+		{
+			// get the difference in years
+			// subtract another year if we're before the
+			// birth day in the current year
+			int totalYears = _currentDate.Year - _birthDate.Year;
+			if (_currentDate.Month < _birthDate.Month || (_currentDate.Month == _birthDate.Month && _currentDate.Day < _birthDate.Day))
+			{
+				totalYears--;
+			}
 
-        public int WholeYears
-        {
-            get
-            {
-                // get the difference in years
-                // subtract another year if we're before the
-                // birth day in the current year
-                int totalYears = _currentDate.Year - _birthDate.Year;
-                if (_currentDate.Month < _birthDate.Month || (_currentDate.Month == _birthDate.Month && _currentDate.Day < _birthDate.Day))
-                {
-                    totalYears--;
-                }
+			return totalYears;
+		}
+	}
 
-                return totalYears;
-            }
-        }
+	public int WholeMonths
+	{
+		get
+		{
+			int totalMonths = _currentDate.Month - _birthDate.Month;
 
-        public int WholeMonths
-        {
-            get
-            {
-                // Months difference corrected for current day.
-                int totalMonths = _currentDate.Month - _birthDate.Month;
-                if (_currentDate.Day < _birthDate.Day)
-                {
-                    totalMonths--;
-                }
-                else if (_currentDate.Day == _birthDate.Day && _currentDate.TimeOfDay < _birthDate.TimeOfDay)
-                {
-                    totalMonths--;
-                }
+			// Adjust for new year
+			if (totalMonths < 0)
+			{
+				totalMonths = (12 - _birthDate.Month) + _currentDate.Month;
+			}
 
-                return totalMonths;
-            }
-        }
+			// Add the years
+			totalMonths += WholeYears * 12;
 
-        public int WholeWeeks => WholeDays / 7;
+			// Months difference corrected for current day.
+			if (_currentDate.Day < _birthDate.Day)
+			{
+				totalMonths--;
+			}
 
-        public int WholeDays => (int)_ageSpan.TotalDays;
+			return totalMonths;
+		}
+	}
 
-        public int WholeHours => (int)_ageSpan.TotalHours;
+	public int WholeWeeks => WholeDays / 7;
 
-        public int WholeMinutes => (int)_ageSpan.TotalMinutes;
+	public int WholeDays => (int)_ageSpan.TotalDays;
 
-        public override string ToString()
-        {
-            List<string> ageParts = new List<string>();
+	public int WholeHours => (int)_ageSpan.TotalHours;
 
-            if (WholeYears > 0)
-                ageParts.Add($"{WholeYears} years");
+	public int WholeMinutes => (int)_ageSpan.TotalMinutes;
 
-            if (RemainderMonths > 0)
-                ageParts.Add($"{RemainderMonths} months");
+	public override string ToString()
+	{
+		string fullAge = $"{WholeYears} years, {RemainderMonths} months, {RemainderWeeks} weeks, {RemainderDays} days, {RemainderHours} hours, {RemainderMinutes} minutes.";
 
-            if (RemainderWeeks > 0)
-                ageParts.Add($"{RemainderWeeks} weeks");
+		return fullAge;
+	}
 
-            if (RemainderDays > 0)
-                ageParts.Add($"{RemainderDays} days");
+	private int RemainderMonths => WholeMonths % 12;
 
-            if (RemainderHours > 0)
-                ageParts.Add($"{RemainderHours} hours");
+	private int RemainderWeeks
+	{
+		get
+		{
+			// get the whole weeks between the birthdate + years + months
+			TimeSpan t = _currentDate - _birthDate.AddYears(WholeYears).AddMonths(RemainderMonths);
 
-            if (RemainderMinutes > 0)
-                ageParts.Add($"{RemainderMinutes} minutes");
+			return (int)t.TotalDays / 7;
+		}
+	}
 
+	private int RemainderDays
+	{
+		get
+		{
+			// get the whole days between the birthdate + totalweeks
+			TimeSpan t = _currentDate - _birthDate.AddYears(WholeYears)
+												  .AddMonths(RemainderMonths)
+												  .AddDays(RemainderWeeks * 7);
 
-            return string.Join(", ", ageParts);
-        }
+			return (int)t.TotalDays;
+		}
+	}
 
-        private int RemainderMonths => WholeMonths % 12;
+	private int RemainderHours
+	{
+		get
+		{
+			// get the whole weeks between the birthdate + totalDays
+			TimeSpan t = _currentDate - _birthDate.AddDays(WholeDays);
 
-        private int RemainderWeeks
-        {
-            get
-            {
-                // get the whole weeks between the birthdate + years + months
-                TimeSpan t = _currentDate - _birthDate.AddYears(WholeYears).AddMonths(WholeMonths);
+			return (int)t.TotalHours;
+		}
+	}
 
-                return (int)t.TotalDays / 7;
-            }
-        }
+	private int RemainderMinutes
+	{
+		get
+		{
+			// get the whole weeks between the birthdate + total hours
+			TimeSpan t = _currentDate - _birthDate.AddHours(WholeHours);
 
-        private int RemainderDays
-        {
-            get
-            {
-                // get the whole days between the birthdate + totalweeks
-                TimeSpan t = _currentDate - _birthDate.AddYears(WholeYears).AddMonths(WholeMonths).AddDays(RemainderWeeks * 7);
-
-                return (int)t.TotalDays;
-            }
-        }
-
-        private int RemainderHours
-        {
-            get
-            {
-                // get the whole weeks between the birthdate + totalDays
-                TimeSpan t = _currentDate - _birthDate.AddDays(WholeDays);
-
-                return (int)t.TotalHours;
-            }
-        }
-
-        private int RemainderMinutes
-        {
-            get
-            {
-                // get the whole weeks between the birthdate + total hours
-                TimeSpan t = _currentDate - _birthDate.AddHours(WholeHours);
-
-                return (int)t.TotalMinutes;
-            }
-        }
-    }
+			return (int)t.TotalMinutes;
+		}
+	}
+}
 }
